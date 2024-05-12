@@ -43,9 +43,17 @@ def get_password(website):
     conn.close()
     return result[0] if result else None
 
+def delete_password(website):
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute('DELETE FROM passwords WHERE website = ?', (website,))
+    conn.commit()
+    conn.close()
+
 def delete_all_passwords():
     conn = create_connection()
     cursor = conn.cursor()
     cursor.execute('DELETE FROM passwords')
+    cursor.execute('DELETE FROM master_password')
     conn.commit()
     conn.close()
