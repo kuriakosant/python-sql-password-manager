@@ -69,7 +69,7 @@ def start():
     def open_github():
         webbrowser.open("https://github.com/kuriakosant")
 
-    github_icon = tk.PhotoImage(file="github_icon.png")  # You need a GitHub icon PNG in your directory
+    github_icon = tk.PhotoImage(file="assets/github_icon.png")  # You need a GitHub icon PNG in your directory
     github_button = tk.Button(footer_frame, image=github_icon, command=open_github)
     github_button.image = github_icon  # Keep reference to the image
     github_button.pack(side=tk.RIGHT, padx=10)
