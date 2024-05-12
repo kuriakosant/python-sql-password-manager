@@ -1,4 +1,5 @@
 import bcrypt
+import os
 from password_manager import database
 
 MAX_ATTEMPTS = 10
@@ -13,8 +14,8 @@ def master_password_exists():
     return result[0] > 0
 
 def set_master_password(master_password):
-    salt = bcrypt.gensalt()
-    hashed_password = bcrypt.hashpw(master_password.encode(), salt)
+    salt = os.urandom(16)  # Generate a random salt
+    hashed_password = bcrypt.hashpw(master_password.encode(), bcrypt.gensalt())
     
     conn = database.create_connection()
     cursor = conn.cursor()
@@ -34,7 +35,7 @@ def check_master_password(entered_password):
         stored_hash, salt = result
         if bcrypt.checkpw(entered_password.encode(), stored_hash):
             attempts = 0
-            return True
+            return salt  # Return the salt for key derivation
         else:
             attempts += 1
             if attempts >= MAX_ATTEMPTS:
