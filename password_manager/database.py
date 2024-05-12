@@ -7,7 +7,6 @@ def create_tables():
     conn = create_connection()
     cursor = conn.cursor()
 
-    # Create the passwords table
     cursor.execute('''CREATE TABLE IF NOT EXISTS passwords (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                         website TEXT NOT NULL,
@@ -17,7 +16,6 @@ def create_tables():
                         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
                       )''')
 
-    # Create the master password table
     cursor.execute('''CREATE TABLE IF NOT EXISTS master_password (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                         password_hash TEXT NOT NULL,
@@ -43,17 +41,33 @@ def get_password(website):
     conn.close()
     return result[0] if result else None
 
+def get_all_passwords():
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM passwords")
+    passwords = cursor.fetchall()
+    conn.close()
+    return passwords
+
+def get_username(website):
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT username FROM passwords WHERE website = ?", (website,))
+    result = cursor.fetchone()
+    conn.close()
+    return result[0] if result else None
+
+def get_description(website):
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT description FROM passwords WHERE website = ?", (website,))
+    result = cursor.fetchone()
+    conn.close()
+    return result[0] if result else None
+
 def delete_password(website):
     conn = create_connection()
     cursor = conn.cursor()
-    cursor.execute('DELETE FROM passwords WHERE website = ?', (website,))
-    conn.commit()
-    conn.close()
-
-def delete_all_passwords():
-    conn = create_connection()
-    cursor = conn.cursor()
-    cursor.execute('DELETE FROM passwords')
-    cursor.execute('DELETE FROM master_password')
+    cursor.execute("DELETE FROM passwords WHERE website = ?", (website,))
     conn.commit()
     conn.close()
