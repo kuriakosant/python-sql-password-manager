@@ -7,7 +7,10 @@ def create_tables():
     conn = create_connection()
     cursor = conn.cursor()
 
-    # Create the passwords table with a salt column
+    # Drop the existing table (if necessary)
+    cursor.execute('''DROP TABLE IF EXISTS passwords''')
+
+    # Create the passwords table with the correct schema including the salt column
     cursor.execute('''CREATE TABLE IF NOT EXISTS passwords (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                         website TEXT NOT NULL,
@@ -18,6 +21,7 @@ def create_tables():
                         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
                       )''')
 
+    # Create the master password table
     cursor.execute('''CREATE TABLE IF NOT EXISTS master_password (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                         password_hash TEXT NOT NULL,
@@ -52,6 +56,17 @@ def get_password(website):
         return result  # Return the encrypted password and salt
     else:
         return (None, None)
+
+def get_all_passwords():
+    conn = create_connection()
+    cursor = conn.cursor()
+    
+    # Retrieve all passwords (for viewing in a list)
+    cursor.execute('''SELECT website, username FROM passwords''')
+    results = cursor.fetchall()
+    
+    conn.close()
+    return results
 
 def get_username(website):
     conn = create_connection()

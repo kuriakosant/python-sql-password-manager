@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import simpledialog, messagebox, ttk
-from password_manager import logic, security, database
+from password_manager import logic, security
 import webbrowser
 import os
 
@@ -66,10 +66,11 @@ def start():
         tree.heading("Username", text="Username")
 
         for pwd in passwords:
-            tree.insert("", "end", values=(pwd[1], pwd[2]))
+            tree.insert("", "end", values=(pwd[0], pwd[1]))  # pwd[0] is website, pwd[1] is username
 
         tree.pack(fill=tk.BOTH, expand=True)
 
+        # Bind event to the tree when a password is selected
         def on_password_select(event):
             selected_item = tree.selection()[0]
             website = tree.item(selected_item, "values")[0]
