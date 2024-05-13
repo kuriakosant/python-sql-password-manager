@@ -46,3 +46,18 @@ def view_password(website):
 
 def delete_password(website):
     database.delete_password(website)
+
+def update_password(old_website, new_website, new_username, new_password, new_description):
+    # Fetch the salt used for the old password
+    _, salt = database.get_password(old_website)
+    
+    # Generate a new encryption key using the master password and the existing salt
+    master_password = "your_master_password"  # This should be securely obtained
+    key = encryption.generate_key(master_password, salt)
+    
+    # Encrypt the updated password
+    encrypted_password = encryption.encrypt_password(new_password, key)
+    
+    # Update the password entry in the database
+    database.update_password(old_website, new_website, new_username, encrypted_password, new_description)
+

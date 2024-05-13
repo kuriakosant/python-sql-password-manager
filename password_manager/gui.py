@@ -13,10 +13,25 @@ def start():
     welcome_label = tk.Label(window, text="Welcome to my Simple Python SQL Password Manager", font=("Helvetica", 14))
     welcome_label.pack(pady=20)
 
+    add_window_open = False
+    view_window_open = False
+
     def add_password_window():
+        nonlocal add_window_open
+        if add_window_open:
+            return
+        add_window_open = True
+
         add_window = tk.Toplevel(window)
         add_window.title("Add New Password")
         add_window.geometry("400x300")
+
+        def on_close():
+            nonlocal add_window_open
+            add_window_open = False
+            add_window.destroy()
+
+        add_window.protocol("WM_DELETE_WINDOW", on_close)
 
         tk.Label(add_window, text="Website").pack(pady=5)
         website_entry = tk.Entry(add_window)
@@ -44,22 +59,33 @@ def start():
                 # Call the logic to add the password, including encryption and database insertion
                 logic.add_password(website, username, password, description)
                 messagebox.showinfo("Success", "Password added successfully!")
-                add_window.destroy()
+                on_close()
             else:
                 messagebox.showerror("Error", "Please fill all fields!")
 
         tk.Button(add_window, text="Submit", command=submit_password).pack(pady=20)
 
     def view_passwords_window():
-        view_window = tk.Toplevel(window)
-        view_window.title("View Passwords")
-        view_window.geometry("400x300")
-
+        nonlocal view_window_open
+        if view_window_open:
+            return
         passwords = logic.get_all_passwords()
 
         if not passwords:
             messagebox.showinfo("Info", "No passwords stored!")
             return
+
+        view_window_open = True
+        view_window = tk.Toplevel(window)
+        view_window.title("View Passwords")
+        view_window.geometry("400x300")
+
+        def on_close():
+            nonlocal view_window_open
+            view_window_open = False
+            view_window.destroy()
+
+        view_window.protocol("WM_DELETE_WINDOW", on_close)
 
         tree = ttk.Treeview(view_window, columns=("Website", "Username"), show="headings")
         tree.heading("Website", text="Website")
@@ -101,10 +127,56 @@ def start():
                 messagebox.showinfo("Success", "Password deleted successfully!")
                 show_window.destroy()
 
+            def edit_password():
+                edit_password_window(website)
+
+            tk.Button(show_window, text="Edit Password", command=edit_password).pack(pady=10)
             tk.Button(show_window, text="Delete Password", command=delete_password).pack(pady=10)
 
         else:
             messagebox.showerror("Error", "Password not found!")
+
+    def edit_password_window(website):
+        edit_window = tk.Toplevel(window)
+        edit_window.title(f"Edit Password - {website}")
+        edit_window.geometry("400x300")
+
+        password_info = logic.view_password(website)
+
+        tk.Label(edit_window, text="Website").pack(pady=5)
+        website_entry = tk.Entry(edit_window)
+        website_entry.insert(0, password_info['website'])
+        website_entry.pack()
+
+        tk.Label(edit_window, text="Username").pack(pady=5)
+        username_entry = tk.Entry(edit_window)
+        username_entry.insert(0, password_info['username'])
+        username_entry.pack()
+
+        tk.Label(edit_window, text="Password").pack(pady=5)
+        password_entry = tk.Entry(edit_window, show="*")
+        password_entry.insert(0, password_info['password'])
+        password_entry.pack()
+
+        tk.Label(edit_window, text="Description").pack(pady=5)
+        description_entry = tk.Entry(edit_window)
+        description_entry.insert(0, password_info['description'])
+        description_entry.pack()
+
+        def save_changes():
+            updated_website = website_entry.get()
+            updated_username = username_entry.get()
+            updated_password = password_entry.get()
+            updated_description = description_entry.get()
+
+            if updated_website and updated_username and updated_password:
+                logic.update_password(website, updated_website, updated_username, updated_password, updated_description)
+                messagebox.showinfo("Success", "Password updated successfully!")
+                edit_window.destroy()
+            else:
+                messagebox.showerror("Error", "Please fill all fields!")
+
+        tk.Button(edit_window, text="Save Changes", command=save_changes).pack(pady=20)
 
     # Buttons for operations
     tk.Button(window, text="Add Password", command=add_password_window, width=20).pack(pady=10)

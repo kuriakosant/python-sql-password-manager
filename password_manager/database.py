@@ -90,3 +90,15 @@ def delete_password(website):
     cursor.execute('DELETE FROM passwords WHERE website = ?', (website,))
     conn.commit()
     conn.close()
+
+def update_password(old_website, new_website, new_username, encrypted_password, new_description):
+    conn = create_connection()
+    cursor = conn.cursor()
+    
+    # Update the password, username, and description for the given website
+    cursor.execute('''UPDATE passwords
+                      SET website = ?, username = ?, password = ?, description = ?
+                      WHERE website = ?''', (new_website, new_username, encrypted_password, new_description, old_website))
+    
+    conn.commit()
+    conn.close()
