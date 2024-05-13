@@ -1,13 +1,13 @@
 import base64
-import os
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+from cryptography.hazmat.primitives import hashes  # Import hashes here
 from cryptography.fernet import Fernet
 
-# Use PBKDF2 to derive a key from the master password
+# Derive a key using PBKDF2HMAC with the master password and a salt
 def generate_key(master_password: str, salt: bytes):
     kdf = PBKDF2HMAC(
-        algorithm='SHA256',
+        algorithm=hashes.SHA256(),  # This is the correct algorithm object
         length=32,
         salt=salt,
         iterations=100000,

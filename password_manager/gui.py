@@ -41,6 +41,7 @@ def start():
             description = description_entry.get()
 
             if website and username and password:
+                # Call the logic to add the password, including encryption and database insertion
                 logic.add_password(website, username, password, description)
                 messagebox.showinfo("Success", "Password added successfully!")
                 add_window.destroy()
